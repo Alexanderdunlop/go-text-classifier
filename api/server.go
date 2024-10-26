@@ -19,8 +19,18 @@ func NewServer() *Server {
 }
 
 func (s *Server) setupRoutes() {
-	s.router.HandleFunc("/api/classify", s.handleClassify).Methods("POST")
-	s.router.HandleFunc("/api/health", s.handleHealth).Methods("GET")
+	s.router.HandleFunc("/api/classify",
+		s.chainMiddleware(
+			s.handleClassify,
+			s.withErrorHandling,
+			s.withLogging,
+		)).Methods("POST")
+	s.router.HandleFunc("/api/health",
+		s.chainMiddleware(
+			s.handleHealth,
+			s.withErrorHandling,
+			s.withLogging,
+		)).Methods("GET")
 }
 
 func (s *Server) Start(addr string) error {
